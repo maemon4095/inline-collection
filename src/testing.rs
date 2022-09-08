@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 pub(crate) use memory_testing_utils::*;
 
 pub(crate) trait IsSomeAndExtension<T> {
