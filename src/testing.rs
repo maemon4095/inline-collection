@@ -1,6 +1,4 @@
-#![allow(unused_imports)]
-mod drop_watcher;
-pub(crate) use drop_watcher::*;
+pub(crate) use memory_testing_utils::*;
 
 pub(crate) trait IsSomeAndExtension<T> {
     fn any(&self, predicate: impl FnOnce(&T) -> bool) -> bool;

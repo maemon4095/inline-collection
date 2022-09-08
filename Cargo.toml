@@ -2,3 +2,8 @@
 name = "inline-collection"
 version = "0.0.0"
 edition = "2021"
+
+[dependencies]
+memory-testing-utils = { git = "https://github.com/maemon4095/memory-testing-utils", version = "0.0.0" }
+
+

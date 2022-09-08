@@ -1,6 +1,5 @@
 use std::mem::{ManuallyDrop, MaybeUninit};
 use std::ops::{Index, IndexMut};
-
 pub struct InlineRingBuf<T, const N: usize> {
     buffer: ManuallyDrop<[T; N]>,
     len: usize,
@@ -39,7 +38,10 @@ impl<T, const N: usize> InlineRingBuf<T, N> {
         }
 
         unsafe {
-            self.buffer.as_mut_ptr().add(self.index(self.len)).write(item);
+            self.buffer
+                .as_mut_ptr()
+                .add(self.index(self.len))
+                .write(item);
         }
         self.len += 1;
     }
@@ -101,7 +103,10 @@ impl<T, const N: usize> InlineRingBuf<T, N> {
         }
     }
     pub fn iter(&self) -> InlineRingBufIter<T, N> {
-        InlineRingBufIter { buf: self, index: 0 }
+        InlineRingBufIter {
+            buf: self,
+            index: 0,
+        }
     }
 
     fn index(&self, index: usize) -> usize {

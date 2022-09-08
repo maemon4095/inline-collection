@@ -5,3 +5,11 @@ version = 3
 [[package]]
 name = "inline-collection"
 version = "0.0.0"
+dependencies = [
+ "memory-testing-utils",
+]
+
+[[package]]
+name = "memory-testing-utils"
+version = "0.0.0"
+source = "git+https://github.com/maemon4095/memory-testing-utils#c9c291ebb4b08f483dffb7d2719ed6c3a0e2f914"

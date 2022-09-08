@@ -38,9 +38,10 @@ impl<T> CollectionRemovalExtension<T> for Vec<T> {
 
 #[cfg(test)]
 mod tests {
+    use crate::collection_removal_extension::CollectionRemovalExtension;
+    use crate::testing::*;
     use std::{borrow::Borrow, fmt::Debug};
 
-    use crate::{collection_removal_extension::CollectionRemovalExtension, testing::*};
     #[test]
     fn swap_remove_all() {
         validate([1, 2, 3], |i| i % 2 == 0);
