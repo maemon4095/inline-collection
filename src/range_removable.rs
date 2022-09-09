@@ -1,9 +1,9 @@
-pub trait CollectionRemovalExtension<T> {
+pub trait RangeRemovable<T> {
     fn swap_remove_all(&mut self, predicate: impl FnMut(&T) -> bool, removed: impl FnMut(T));
     fn remove_all(&mut self, predicate: impl FnMut(&T) -> bool, removed: impl FnMut(T));
 }
 
-impl<T> CollectionRemovalExtension<T> for Vec<T> {
+impl<T> RangeRemovable<T> for Vec<T> {
     fn swap_remove_all(
         &mut self,
         mut predicate: impl FnMut(&T) -> bool,
@@ -27,7 +27,7 @@ impl<T> CollectionRemovalExtension<T> for Vec<T> {
                     removed(p.read());
                     removed_count += 1;
                 } else if removed_count > 0 {
-                    p.sub(removed_count).swap(p);
+                    std::ptr::copy_nonoverlapping(p, p.sub(removed_count), 1);
                 }
             }
 
@@ -38,7 +38,7 @@ impl<T> CollectionRemovalExtension<T> for Vec<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::collection_removal_extension::CollectionRemovalExtension;
+    use crate::range_removable::RangeRemovable;
     use crate::testing::*;
     use std::{borrow::Borrow, fmt::Debug};
 
