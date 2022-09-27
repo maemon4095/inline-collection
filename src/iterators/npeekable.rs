@@ -4,6 +4,7 @@ pub struct NPeekable<I: Iterator, const N: usize> {
     peeked: InlineRingBuf<I::Item, N>,
 }
 
+//TODO: Rewind Api
 impl<const N: usize, I: Iterator> NPeekable<I, N> {
     pub fn peek(&mut self) -> Option<&I::Item> {
         self.nth_peek(0)
@@ -17,7 +18,10 @@ impl<const N: usize, I: Iterator> NPeekable<I, N> {
         self.peeked.get(index)
     }
 
-    pub fn peek_range(&mut self, count: usize) -> std::iter::Take<InlineRingBufIter<'_, I::Item, N>> {
+    pub fn peek_range(
+        &mut self,
+        count: usize,
+    ) -> std::iter::Take<InlineRingBufIter<'_, I::Item, N>> {
         self.load(count);
         self.peeked.iter().take(count)
     }
@@ -32,21 +36,37 @@ impl<const N: usize, I: Iterator> NPeekable<I, N> {
     pub fn has_exact(&mut self, count: usize) -> Option<bool> {
         let peeked = self.peek_range(count);
         if count >= N {
-            return if peeked.len() < count { Some(false) } else { None };
+            return if peeked.len() < count {
+                Some(false)
+            } else {
+                None
+            };
         }
 
         Some(peeked.len() == count)
     }
 
-    pub fn has_exact_and(&mut self, count: usize, predicate: impl FnMut((usize, &I::Item)) -> bool) -> Option<bool> {
+    pub fn has_exact_and(
+        &mut self,
+        count: usize,
+        predicate: impl FnMut((usize, &I::Item)) -> bool,
+    ) -> Option<bool> {
         let mut peeked = self.peek_range(count + 1).enumerate();
         if count >= N {
-            return if peeked.len() < count || !peeked.all(predicate) { Some(false) } else { None };
+            return if peeked.len() < count || !peeked.all(predicate) {
+                Some(false)
+            } else {
+                None
+            };
         }
         Some(peeked.len() == count && peeked.all(predicate))
     }
 
-    pub fn starts(&mut self, count: usize, predicate: impl FnMut((usize, &I::Item)) -> bool) -> Option<bool> {
+    pub fn starts(
+        &mut self,
+        count: usize,
+        predicate: impl FnMut((usize, &I::Item)) -> bool,
+    ) -> Option<bool> {
         let mut peeked = self.peek_range(count).enumerate();
         if count >= N {
             if peeked.len() < count || !peeked.all(predicate) {
@@ -117,7 +137,9 @@ mod tests {
             let mut peekable = (0..count).into_iter().n_peekable::<N>();
             let should_contains = N.min(count);
             assert!((0..=should_contains).all(|c| !peekable.has_less_than(c)));
-            assert!(((should_contains + 1)..(should_contains * 2)).all(|c| peekable.has_less_than(c)));
+            assert!(
+                ((should_contains + 1)..(should_contains * 2)).all(|c| peekable.has_less_than(c))
+            );
         }
     }
 
