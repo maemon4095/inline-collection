@@ -4,7 +4,6 @@ pub struct NPeekable<I: Iterator, const N: usize> {
     peeked: InlineRingBuf<I::Item, N>,
 }
 
-//TODO: Rewind Api
 impl<const N: usize, I: Iterator> NPeekable<I, N> {
     pub fn peek(&mut self) -> Option<&I::Item> {
         self.nth_peek(0)
