@@ -3,7 +3,7 @@ mod inline_vec;
 pub mod iterators;
 mod range_insertable;
 mod range_removable;
-mod testing;
+pub mod sequence;
 pub use inline_ring_buffer::InlineRingBuf;
 pub use inline_ring_buffer::InlineRingBufIter;
 pub use inline_vec::InlineVec;

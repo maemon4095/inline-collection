@@ -1,10 +1,10 @@
+mod any_peekable;
 mod npeekable;
-mod vec_peekable;
+pub use any_peekable::AnyPeekable;
 pub use npeekable::NPeekable;
-pub use vec_peekable::VecPeekable;
 pub trait IteratorExtensions<I: Iterator> {
     fn n_peekable<const N: usize>(self) -> NPeekable<I, N>;
-    fn vec_peekable(self) -> VecPeekable<I>;
+    fn any_peekable(self) -> AnyPeekable<I>;
 }
 
 impl<I: Iterator> IteratorExtensions<I> for I {
@@ -12,7 +12,7 @@ impl<I: Iterator> IteratorExtensions<I> for I {
         NPeekable::from(self)
     }
 
-    fn vec_peekable(self) -> VecPeekable<I> {
-        todo!()
+    fn any_peekable(self) -> AnyPeekable<I> {
+        AnyPeekable::from(self)
     }
 }
