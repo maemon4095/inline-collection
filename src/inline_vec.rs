@@ -1,10 +1,10 @@
-use std::mem::{ManuallyDrop, MaybeUninit};
+use std::mem::MaybeUninit;
 use std::ops::{Deref, DerefMut, Index, IndexMut};
 use std::slice::SliceIndex;
 
 pub struct InlineVec<T, const N: usize> {
-    buffer: ManuallyDrop<[T; N]>,
     len: usize,
+    buffer: [MaybeUninit<T>; N],
 }
 impl<T, const N: usize> InlineVec<T, N> {
     pub const fn new() -> Self {
@@ -23,7 +23,7 @@ impl<T, const N: usize> InlineVec<T, N> {
         }
         unsafe {
             let ptr = self.buffer.as_mut_ptr();
-            ptr.add(self.len).write(item);
+            (*ptr.add(self.len)).write(item);
         }
         self.len += 1;
 
@@ -36,7 +36,7 @@ impl<T, const N: usize> InlineVec<T, N> {
         }
 
         self.len -= 1;
-        let item = unsafe { self.buffer.as_mut_ptr().add(self.len).read() };
+        let item = unsafe { self.buffer.as_mut_ptr().add(self.len).read().assume_init() };
 
         return Some(item);
     }
@@ -46,7 +46,7 @@ impl<T, const N: usize> InlineVec<T, N> {
             return None;
         }
 
-        let item = unsafe { &*self.buffer.as_ptr().add(self.len - 1) };
+        let item = unsafe { (&*self.buffer.as_ptr().add(self.len - 1)).assume_init_ref() };
 
         return Some(item);
     }
@@ -63,8 +63,16 @@ impl<T, const N: usize> InlineVec<T, N> {
         if self.len <= index {
             None
         } else {
-            Some(&self.buffer[index])
+            Some(unsafe { self.buffer[index].assume_init_ref() })
         }
+    }
+
+    pub fn items<'a>(&'a self) -> &'a [T] {
+        unsafe { std::mem::transmute(&self.buffer[..self.len]) }
+    }
+
+    pub fn items_mut<'a>(&'a mut self) -> &'a mut [T] {
+        unsafe { std::mem::transmute(&mut self.buffer[..self.len]) }
     }
 }
 
@@ -83,25 +91,25 @@ impl<T, const N: usize> Deref for InlineVec<T, N> {
     type Target = [T];
 
     fn deref(&self) -> &Self::Target {
-        &self[..]
+        self.items()
     }
 }
 
 impl<T, const N: usize> DerefMut for InlineVec<T, N> {
     fn deref_mut(&mut self) -> &mut [T] {
-        &mut self[..]
+        self.items_mut()
     }
 }
 
 impl<I: SliceIndex<[T]>, T, const N: usize> Index<I> for InlineVec<T, N> {
     type Output = I::Output;
     fn index(&self, index: I) -> &Self::Output {
-        &self.buffer[..self.len][index]
+        &self.items()[index]
     }
 }
 impl<I: SliceIndex<[T]>, T, const N: usize> IndexMut<I> for InlineVec<T, N> {
     fn index_mut(&mut self, index: I) -> &mut Self::Output {
-        &mut self.buffer[..self.len][index]
+        &mut self.items_mut()[index]
     }
 }
 impl<T, const N: usize> Default for InlineVec<T, N> {

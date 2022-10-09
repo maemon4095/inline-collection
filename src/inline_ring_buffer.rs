@@ -199,8 +199,8 @@ impl<'a, T, const N: usize> ExactSizeIterator for InlineRingBufIter<'a, T, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::testing::*;
     use crate::InlineRingBuf;
+    use memory_testing_utils::*;
     use std::fmt::Debug;
 
     #[test]
@@ -248,7 +248,7 @@ mod tests {
                 }
 
                 for (idx, item) in should_be_contained.iter().enumerate() {
-                    assert!(buf.get(idx).any(|&m| &*m.props() == item))
+                    assert!(buf.get(idx).iter().any(|&m| &*m.props() == item))
                 }
             }
             assert!(watcher.markers().iter().all(|s| s.is_properly_dropped()));
@@ -273,7 +273,7 @@ mod tests {
                 }
 
                 for (idx, item) in should_be_contained.iter().rev().enumerate() {
-                    assert!(buf.get(idx).any(|&m| &*m.props() == item))
+                    assert!(buf.get(idx).iter().any(|&m| &*m.props() == item))
                 }
             }
             assert!(watcher.markers().iter().all(|s| s.is_properly_dropped()));

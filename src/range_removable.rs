@@ -39,7 +39,7 @@ impl<T> RangeRemovable<T> for Vec<T> {
 #[cfg(test)]
 mod tests {
     use crate::range_removable::RangeRemovable;
-    use crate::testing::*;
+    use memory_testing_utils::*;
     use std::{borrow::Borrow, fmt::Debug};
 
     #[test]
