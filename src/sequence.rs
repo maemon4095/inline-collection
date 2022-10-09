@@ -1,4 +1,5 @@
-use std::{marker::PhantomData, mem, mem::MaybeUninit, ops::Range, ptr::NonNull};
+#![cfg(any())]
+use std::{marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
 
 pub struct Sequence<T, S: Strategy> {
     head: Option<NonNull<Segment<T>>>,
@@ -29,7 +30,7 @@ impl<T, S: Strategy> Sequence<T, S> {
     fn prepend(&mut self, item: T) {}
 }
 
-struct Cursor<'a, T, S: Strategy> {
+pub struct Cursor<'a, T, S: Strategy> {
     current: &'a mut Option<NonNull<Segment<T>>>,
     strategy: &'a S,
     index: usize,
@@ -47,6 +48,7 @@ impl<T: FnMut(usize, usize) -> usize> Strategy for T {
 
 struct Segment<T> {
     next: Option<NonNull<Segment<T>>>,
+    back: Option<NonNull<Segment<T>>>,
     len: usize,
     buffer: [MaybeUninit<T>],
 }
@@ -59,7 +61,9 @@ impl<T> Segment<T> {
         items: impl ExactSizeIterator<Item = T>,
     ) {
         let req = items.len().checked_sub(self.free_len());
-        if req.map_or(false, |r| r > 0) {}
+        if req.map_or(false, |r| r > 0) { //insert item len exceeds free len
+        } else {
+        }
     }
 
     fn free_len(&self) -> usize {
