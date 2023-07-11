@@ -17,9 +17,9 @@ impl<T, const N: usize> InlineVec<T, N> {
     pub const fn capacity(&self) -> usize {
         N
     }
-    pub fn push(&mut self, item: T) -> bool {
+    pub fn push(&mut self, item: T) -> Result<(), T> {
         if self.len >= self.capacity() {
-            return false;
+            return Err(item);
         }
         unsafe {
             let ptr = self.buffer.as_mut_ptr();
@@ -27,7 +27,7 @@ impl<T, const N: usize> InlineVec<T, N> {
         }
         self.len += 1;
 
-        return true;
+        return Ok(());
     }
 
     pub fn pop(&mut self) -> Option<T> {
